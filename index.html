@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word to Number Converter</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Word to Number Converter</h1>
+        <input type="text" id="inputText" placeholder="Enter number in words (e.g., Three hundred million)">
+        <button onclick="convertToNumber()">Convert</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let pyodide;
+        async function loadPyodideAndRun() {
+        
+            const response = await fetch('word_to_number.py');
+            const pythonCode = await response.text();
+
+            await pyodide.runPythonAsync(pythonCode);
+        }
+
+        loadPyodideAndRun();
+
+        async function convertToNumber() {
+            const inputText = document.getElementById('inputText').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!inputText.trim()) {
+                resultDiv.innerText = "Please enter a valid number in words.";
+                return;
+            }
+
+            try {
+
+                const result = await pyodide.runPythonAsync(`word_to_number("${inputText}")`);
+                resultDiv.innerText = `Result: ${result}`;
+            } catch (error) {
+                resultDiv.innerText = "Error: Invalid input. Please use correct number words.";
+            }
+        }
+    </script>
+</body>
+</html>
