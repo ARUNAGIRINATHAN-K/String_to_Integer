@@ -21,12 +21,11 @@ h1 {
     color: #333;
 }
 input {
-    width: 100%;
+    width: 350px; /* Optional: set a width for better appearance */
     padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+    margin: 20px 0;
+    font-size: 1rem;
+    box-sizing: border-box;
 }
 button {
     padding: 10px 20px;
