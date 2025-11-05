@@ -1,0 +1,7 @@
+{
+  "name": "WikiBot AI",
+  "description": "A conversational chatbot that answers factual questions by sourcing and summarizing information from the web, similar to a Wikipedia expert.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
