@@ -1,11 +1,15 @@
-// import { GoogleGenAI } from "@google/genai";
 import { Source } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable is not set");
-}
+// This service no longer calls Google GenAI. It fetches Wikipedia text and returns a concise
+// summary derived from the article intro. This keeps secrets out of the client and
+// removes the `@google/genai` dependency.
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+function summarizeText(text: string, maxSentences = 3): string {
+    // Split into sentences using punctuation followed by whitespace. Keep it simple.
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    const chosen = sentences.slice(0, maxSentences);
+    return chosen.join(' ').trim();
+}
 
 export interface FactualAnswer {
     answer: string;
@@ -90,30 +94,12 @@ export async function getFactualAnswer(question: string): Promise<FactualAnswer>
             };
         }
 
-        // 3. Use Gemini to answer the question based on the Wikipedia text
-        const prompt = `Based *only* on the following text from Wikipedia, provide a concise answer to the user's question.
-Do not use any information not present in the text. Format your response using markdown.
+        // 3. Create a concise answer based solely on the Wikipedia extract.
+        const shortAnswer = summarizeText(articleExtract, 3);
 
-User's Question: "${question}"
+        // Format the answer as a short, human-friendly paragraph. Keep it markdown-friendly.
+        const answer = `**Answer (based on Wikipedia - ${articleTitle})**\n\n${shortAnswer}`;
 
-Wikipedia Text:
-"""
-${articleExtract}
-"""
-
-Answer:`;
-
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                systemInstruction: `You are a helpful and knowledgeable chatbot named WikiBot. Your goal is to answer factual questions accurately based on provided Wikipedia text.`,
-            },
-        });
-
-        const answer = response.text;
-        
-        // The source is the Wikipedia article we used
         const sources: Source[] = [{
             title: articleTitle,
             uri: `https://en.wikipedia.org/wiki/${encodeURIComponent(articleTitle.replace(/ /g, '_'))}`
